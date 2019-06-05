@@ -1,4 +1,4 @@
-## Jerry Sun MKS66 Graphics Final Project
+# Jerry Sun MKS66 Graphics Final Project
 
 <b>Team Name</b>: 
 <p>soyboii</p>
