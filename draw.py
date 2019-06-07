@@ -1,6 +1,7 @@
 from display import *
 from matrix import *
 from gmath import *
+from math import *
 
 def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
     if x0 > x1:
@@ -82,38 +83,51 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, ref
         return
 
     point = 0
-    while point < len(polygons) - 2:
+	
+	if shading == 'flat':
+		while point < len(polygons) - 2:
 
-        normal = calculate_normal(polygons, point)[:]
+			normal = calculate_normal(polygons, point)[:]
 
-        #print normal
-        if normal[2] > 0:
+			#print normal
+			if normal[2] > 0:
 
-            color = get_lighting(normal, view, ambient, light, symbols, reflect )
-            scanline_convert(polygons, point, screen, zbuffer, color)
+				color = get_lighting(normal, view, ambient, light, symbols, reflect )
+				scanline_convert(polygons, point, screen, zbuffer, color)
 
-            # draw_line( int(polygons[point][0]),
-            #            int(polygons[point][1]),
-            #            polygons[point][2],
-            #            int(polygons[point+1][0]),
-            #            int(polygons[point+1][1]),
-            #            polygons[point+1][2],
-            #            screen, zbuffer, color)
-            # draw_line( int(polygons[point+2][0]),
-            #            int(polygons[point+2][1]),
-            #            polygons[point+2][2],
-            #            int(polygons[point+1][0]),
-            #            int(polygons[point+1][1]),
-            #            polygons[point+1][2],
-            #            screen, zbuffer, color)
-            # draw_line( int(polygons[point][0]),
-            #            int(polygons[point][1]),
-            #            polygons[point][2],
-            #            int(polygons[point+2][0]),
-            #            int(polygons[point+2][1]),
-            #            polygons[point+2][2],
-            #            screen, zbuffer, color)
-        point+= 3
+				# draw_line( int(polygons[point][0]),
+				#            int(polygons[point][1]),
+				#            polygons[point][2],
+				#            int(polygons[point+1][0]),
+				#            int(polygons[point+1][1]),
+				#            polygons[point+1][2],
+				#            screen, zbuffer, color)
+				# draw_line( int(polygons[point+2][0]),
+				#            int(polygons[point+2][1]),
+				#            polygons[point+2][2],
+				#            int(polygons[point+1][0]),
+				#            int(polygons[point+1][1]),
+				#            polygons[point+1][2],
+				#            screen, zbuffer, color)
+				# draw_line( int(polygons[point][0]),
+				#            int(polygons[point][1]),
+				#            polygons[point][2],
+				#            int(polygons[point+2][0]),
+				#            int(polygons[point+2][1]),
+				#            polygons[point+2][2],
+				#            screen, zbuffer, color)
+			point+= 3	
+		return
+			
+			
+	elif shading == 'gouraud' or 'phong':
+		vectors = {}
+		while point < len(polygons) - 2:
+			normal = calculate_normal(polygons, point)[:]
+			normalize(normal)
+			
+		
+			
 
 
 def add_box( polygons, x, y, z, width, height, depth ):
