@@ -77,7 +77,7 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x1, y1, z1)
     add_point(polygons, x2, y2, z2)
 
-def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
+def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, reflect, shading, intensity):
     if len(polygons) < 2:
         print 'Need at least 3 points to draw'
         return
@@ -125,9 +125,28 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, ref
 		while point < len(polygons) - 2:
 			normal = calculate_normal(polygons, point)[:]
 			normalize(normal)
-			
+			if tuple(polygons[point]) is not in vectors.keys():
+				vectors[tuple(polygons[point])] = [0,0,0]
+			if tuple(polygons[point+1]) is not in vectors.keys():
+				vectors[tuple(polygons[point+1])] = [0,0,0]
+			if tuple(polygons[point+2]) is not in vectors.keys():
+				vectors[tuple(polygons[point+2])] = [0,0,0]
+				
+			vectors[tuple(polygons[point])] = vectors[tuple(polygons[point])][0] + normal[0], vectors[tuple(polygons[point])][1] + normal[1], vectors[tuple(polygons[point])][2] + normal[2]
+			vectors[tuple(polygons[point+1])] = vectors[tuple(polygons[point+1])][0] + normal[0], vectors[tuple(polygons[point+1])][1] + normal[1], vectors[tuple(polygons[point+1])][2] + normal[2]
+			vectors[tuple(polygons[point+2])] = vectors[tuple(polygons[point+2])][0] + normal[0], vectors[tuple(polygons[point+2])][1] + normal[1], vectors[tuple(polygons[point+2])][2] + normal[2]
+			point += 3
+		for vector in vectors.keys:
+			normalize (vectors[normal])
+	
+	point = 0
+	
+	while point < len(polygons)-2:
+		normal = calculate_normal(polygons,point)[:]
+		if dot_product(normal,view)>0:
+			if shading == "gouraud":
+				k1 = vnormals[tuple(polygons[point])]	
 		
-			
 
 
 def add_box( polygons, x, y, z, width, height, depth ):
