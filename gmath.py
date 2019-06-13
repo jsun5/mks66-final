@@ -40,6 +40,30 @@ def get_lighting(normal, view, ambient, light, symbols, reflect ):
     limit_color(i)
 
     return i
+	
+def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect, intensity):
+    normalize(normal)
+    normalize(view)
+
+    a = calculate_ambient(ambient, areflect)
+    d = [0,0,0]
+    s = [0,0,0]
+
+    for l in range(len(light)):
+        normalize(light[l][LOCATION])
+        dif = calculate_diffuse(light[l], dreflect, normal)
+        spec = calculate_specular(light[l], sreflect, view, normal)
+        for ind in range(3):
+            d[ind] += dif[ind]
+            s[ind] += spec[ind]
+
+    i = [0, 0, 0]
+    i[RED] = int(a[RED] + d[RED] + s[RED] + intensity[RED])
+    i[GREEN] = int(a[GREEN] + d[GREEN] + s[GREEN] + intensity[GREEN])
+    i[BLUE] = int(a[BLUE] + d[BLUE] + s[BLUE] + intensity[BLUE])
+    
+    limit_color(i)
+    return i
 
 def calculate_ambient(alight, reflect):
     a = [0, 0, 0]
