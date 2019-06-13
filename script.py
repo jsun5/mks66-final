@@ -66,24 +66,54 @@ def second_pass( commands, num_frames ):
     global knobs
 	global num_frames
     
+	for i in range(int(num_frames)):
+        knobs.append({})
+
     for command in commands:
-        op = command['op']
-        if op == 'vary':
+        c = command['op']
+        args = command['args']
+		
+		if c == 'vary':
             knob = command['knob']
-            args = command['args']
-            k1 = args[0]
-            k2 = args[1]
-            v1 = args[2]
-            v2 = args[3]
-            start = 0
-            
-            for i, fram in enumerate(frames):
-                if i <= k2 and i >= k1:
-                    frames_bet = k2 - k1
-                    step = (v2 - v1)/frames_bet
-                    frames[i][knob] = v1 + start*step
-                    start = start + 1;
-    return frames
+			curr = args[2]
+            if len(args) > 4 and args[4] <= 0: return
+            increment = (args[3] - args[2]) / (args[1] - args[0] + 1)
+     
+			for i in range(int(args[0]), int(args[1])+1):
+                if len(args) > 4:
+                    if isinstance(args[4],float):
+                        if increment < 0:
+                            curr = ((increment * (i-args[1]-1)) ** args[4])
+                        else:
+                            curr = (increment * (i+1)) ** args[4]
+                        knobs[i][knob] = curr
+                    elif  args[4] == 'sin':
+                        if increment < 0:
+                            curr = math.sin((increment * (i-args[1]-1) * math.pi/2))
+                        else:
+                            curr = math.sin((increment * (i+1) * math.pi/2))
+                        knobs[i][knob] = curr
+                    elif args[4] == 'cos':
+                        if increment < 0:
+                            curr = 1-math.cos((increment * (i-args[1]-1) * math.pi/2))
+                        else:
+                            curr = 1-math.cos((increment * (i+1) * math.pi/2))
+                        knobs[i][knob] = curr
+                    elif args[4] == 'tan':
+                        if increment < 0:
+                            curr = math.tan((increment * (i-args[1]-1) * math.pi/4))
+                        else:
+                            curr = math.tan((increment * (i+1) * math.pi/4))
+                        knobs[i][knob] = curr
+                    elif args[4] == 'ln':
+                        if increment < 0:
+                            curr = (2-math.log((increment * (i-args[1]-1) * math.e))) ** -1
+                        else:
+                            curr = (2-math.log((increment * (i+1) * math.e))) ** -1
+                        knobs[i][knob] = curr
+                else:
+                    knobs[i][knob] = curr
+                    curr += increment
 
 
 def run(filename):
