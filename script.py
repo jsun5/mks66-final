@@ -2,6 +2,12 @@ import mdl
 from display import *
 from matrix import *
 from draw import *
+import os
+
+is_anim = False
+num_frames = 1
+base = "basename"
+knobs = []
 
 """======== first_pass( commands ) ==========
   Checks the commands array for any animation commands
@@ -14,26 +20,33 @@ from draw import *
   to some default value, and print out a message
   with the name being used.
   ==================== """
+  
+  #Thank you to Andrew Shao for helping me fix my script to implement new intensity feature
 def first_pass( commands ):
     
-    name = ''
-    num_frames = 1
-    
+	global num_frames
+    global base
+    global is_anim
+    frames = False
+    basename = False
+	
     for command in commands:
-        op = command['op']
+        c = command['op']
         args = command['args']
-        
-        if op == 'frames':
+       
+        if c == 'frames':
+			frames = True
+			is_anim = True
             num_frames = args[0]
         
-        elif op == 'basename':
-            name = args[0]
+        elif c == 'basename':
+			is_anim = True
+			found_basename = True
+            base = args[0]
             
-        elif op == 'vary':
-            if num_frames == 1:
-                quit()
-                
-    return (name, num_frames)
+        elif c == 'vary':
+			is_anim = True
+			if not frames: return
 
 """======== second_pass( commands ) ==========
   In order to set the knobs for animation, we need to keep
@@ -50,7 +63,8 @@ def first_pass( commands ):
   appropirate value.
   ====================Thank you Hui Min for giving me a hand at the second pass"""
 def second_pass( commands, num_frames ):
-    frames = [ {} for i in range(int(num_frames)) ]
+    global knobs
+	global num_frames
     
     for command in commands:
         op = command['op']
