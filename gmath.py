@@ -40,7 +40,7 @@ def get_lighting(normal, view, ambient, light, symbols, reflect ):
     limit_color(i)
 
     return i
-	
+    
 def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect, intensity):
     normalize(normal)
     normalize(view)
