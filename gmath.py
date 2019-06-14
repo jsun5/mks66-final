@@ -102,9 +102,18 @@ def calculate_specular(light, sreflect, view, normal):
     return s
 
 def limit_color(color):
-    color[RED] = 255 if color[RED] > 255 else color[RED]
-    color[GREEN] = 255 if color[GREEN] > 255 else color[GREEN]
-    color[BLUE] = 255 if color[BLUE] > 255 else color[BLUE]
+    if color[RED] > 255:
+        color[RED] = 255
+    elif color[RED] < 0:
+        color[RED] = 0
+    if color[GREEN] > 255:
+        color[GREEN] = 255
+    elif color[GREEN] < 0:
+        color[GREEN] = 0
+    if color[BLUE] > 255:
+        color[BLUE] = 255
+    elif color[BLUE] < 0:
+        color[BLUE] = 0
 
 #vector functions
 #normalize vetor, should modify the parameter
