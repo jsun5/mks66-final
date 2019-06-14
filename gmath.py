@@ -65,22 +65,22 @@ def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect, int
     limit_color(i)
     return i
 
-def calculate_ambient(alight, reflect):
+def calculate_ambient(alight, areflect):
     a = [0, 0, 0]
-    a[RED] = alight[RED] * reflect['red'][AMBIENT]
-    a[GREEN] = alight[GREEN] * reflect['green'][AMBIENT]
-    a[BLUE] = alight[BLUE] * reflect['blue'][AMBIENT]
+    a[RED] = alight[RED] * areflect[RED]
+    a[GREEN] = alight[GREEN] * areflect[GREEN]
+    a[BLUE] = alight[BLUE] * areflect[BLUE]
     return a
 
-def calculate_diffuse(light, reflect, normal):
+def calculate_diffuse(light, dreflect, normal):
     d = [0, 0, 0]
 
     dot = dot_product( light[LOCATION], normal)
 
     dot = dot if dot > 0 else 0
-    d[RED] = light[COLOR][RED] * reflect['red'][DIFFUSE] * dot
-    d[GREEN] = light[COLOR][GREEN] * reflect['green'][DIFFUSE] * dot
-    d[BLUE] = light[COLOR][BLUE] * reflect['blue'][DIFFUSE] * dot
+    d[RED] = light[COLOR][RED] * dreflect[RED] * dot
+    d[GREEN] = light[COLOR][GREEN] * dreflect[GREEN] * dot
+    d[BLUE] = light[COLOR][BLUE] * dreflect[BLUE] * dot
     return d
 
 def calculate_specular(light, reflect, view, normal):
@@ -96,9 +96,9 @@ def calculate_specular(light, reflect, view, normal):
     result = result if result > 0 else 0
     result = pow( result, SPECULAR_EXP )
 
-    s[RED] = light[COLOR][RED] * reflect['red'][SPECULAR] * result
-    s[GREEN] = light[COLOR][GREEN] * reflect['green'][SPECULAR] * result
-    s[BLUE] = light[COLOR][BLUE] * reflect['blue'][SPECULAR] * result
+    s[RED] = light[COLOR][RED] * sreflect[RED] * result
+    s[GREEN] = light[COLOR][GREEN] * sreflect[GREEN] * result
+    s[BLUE] = light[COLOR][BLUE] * sreflect[BLUE] * result
     return s
 
 def limit_color(color):

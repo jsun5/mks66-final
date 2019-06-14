@@ -171,20 +171,31 @@ def run(filename):
     coords = []
     coords1 = []
     
-    for i,frame in enumerate(frames):
-        tmp = new_matrix()
-        ident(tmp)
-        stack = [ [x[:] for x in tmp] ]
-        screen = new_screen()
-        zbuffer = new_zbuffer()
-        tmp = []
+    for frame in range(int(num_frames)):
+        if "shading" in symbols.keys():
+            shading = symbols["shading"][1]
+        else:
+            shading = "flat"
+
+        for knob in knobs[frame]:
+            symbols[knob][1] = knobs[frame][knob]
+			
         for command in commands:
-            print command
+            #print command
             c = command['op']
             args = command['args']
-            knob_value = 1
+            if (not args == None):
+                args = args[:]
+			if (c in ["move", "scale", "rotate"]) and (not args == None) and ("knob" in command) and (not command["knob"] == None):
+                knob = command["knob"]
+                for i in range(len(args)):
+                    if not isinstance(args[i], basestring):
+                        args[i] = args[i] * symbols[knob][1]
 
+						
+						
             if c == 'box':
+				intensity = [0,0,0]
                 if command['constants']:
                     reflect = command['constants']
                 add_box(tmp,
@@ -195,6 +206,7 @@ def run(filename):
                 tmp = []
                 reflect = '.white'
             elif c == 'sphere':
+				intensity = [0,0,0]
                 if command['constants']:
                     reflect = command['constants']
                 add_sphere(tmp,
@@ -204,6 +216,7 @@ def run(filename):
                 tmp = []
                 reflect = '.white'
             elif c == 'torus':
+				intensity = [0,0,0]
                 if command['constants']:
                     reflect = command['constants']
                 add_torus(tmp,
