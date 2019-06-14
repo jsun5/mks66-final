@@ -83,7 +83,7 @@ def calculate_diffuse(light, dreflect, normal):
     d[BLUE] = light[COLOR][BLUE] * dreflect[BLUE] * dot
     return d
 
-def calculate_specular(light, reflect, view, normal):
+def calculate_specular(light, sreflect, view, normal):
     s = [0, 0, 0]
     n = [0, 0, 0]
 

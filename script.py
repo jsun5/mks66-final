@@ -311,7 +311,7 @@ def run(filename):
             elif c == 'display':
                 display(screen)
             elif c == 'save':
-                save_extension(screen, args[0]+'.png')
+                save_extension(screen, args[0])
         if is_anim:
             if not os.path.exists('anim'):
                 os.mkdir('anim')
