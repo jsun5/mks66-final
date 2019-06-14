@@ -37,7 +37,7 @@ def scanline_convert(polygons, i, screen, zbuffer, colornormal, shading, extra, 
     #color[GREEN] = (109*(i/3)) %256
     #color[BLUE] = (227*(i/3)) %256
 
-	points.sort(key = lambda x: x[0][1])
+    points.sort(key = lambda x: x[0][1])
 
     x0 = points[BOT][0][0]
     z0 = points[BOT][0][2]
@@ -118,13 +118,13 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x2, y2, z2)
 
 def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect, shading, intensity):
-    if len(polygons) < 2:
+    if len(matrix) < 2:
         print 'Need at least 3 points to draw'
         return
 
     point = 0
-	
-	if shading == "gouraud" or shading == "phong":
+    
+    if shading == "gouraud" or shading == "phong":
         vnormals = {}
         while point < len(matrix) - 2:
             normal = calculate_normal(matrix, point)
@@ -143,9 +143,9 @@ def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dref
             normalize(vnormals[normal])
 
     point = 0
-	
-	while point < len(polygons)-2:
-		normal = calculate_normal(matrix, point)[:]
+    
+    while point < len(matrix)-2:
+        normal = calculate_normal(matrix, point)[:]
         if dot_product(normal, view) > 0:
             if shading == "flat":
                 color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect, intensity )
@@ -162,7 +162,7 @@ def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dref
                 colors = [color0, color1, color2]
                 scanline_convert(matrix, point, screen, zbuffer, colors, shading, [], intensity)
             
-			elif shading == "phong":
+            elif shading == "phong":
                 normal0 = vnormals[tuple(matrix[point])]
                 normal1 = vnormals[tuple(matrix[point+1])]
                 normal2 = vnormals[tuple(matrix[point+2])]
@@ -391,7 +391,7 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, colornormal0, colornorma
         x1 = xt
         y1 = yt
         z1 = zt
-		colornormal2 = colornormal0
+        colornormal2 = colornormal0
         colornormal0 = colornormal1
         colornormal1 = colornormal2
     x = x0
@@ -448,7 +448,7 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, colornormal0, colornorma
     db = (colornormal1[2] - colornormal0[2]) / distance if distance != 0 else 0
 
     while ( loop_start < loop_end ):
-		if shading == "phong":
+        if shading == "phong":
             normal = [r, g, b]
             color = get_lighting(normal, extra[0], extra[1], extra[2], extra[3], extra[4], extra[5], intensity )
         else:
