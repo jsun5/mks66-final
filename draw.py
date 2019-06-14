@@ -21,15 +21,15 @@ def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
         x+= 1
         z+= delta_z
 
-def scanline_convert(polygons, i, screen, zbuffer, color):
+def scanline_convert(polygons, i, screen, zbuffer, colornormal, shading, extra, intensity):
     flip = False
     BOT = 0
     TOP = 2
     MID = 1
 
-    points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
-               (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
-               (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
+    points = [ ((polygons[i][0], polygons[i][1], polygons[i][2]), colornormal[0]),
+               ((polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]), colornormal[1]),
+               ((polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]), colornormal[2]) ]
 
     # alas random color, we hardly knew ye
     #color = [0,0,0]
@@ -37,38 +37,78 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
     #color[GREEN] = (109*(i/3)) %256
     #color[BLUE] = (227*(i/3)) %256
 
-    points.sort(key = lambda x: x[1])
-    x0 = points[BOT][0]
-    z0 = points[BOT][2]
-    x1 = points[BOT][0]
-    z1 = points[BOT][2]
-    y = int(points[BOT][1])
+	points.sort(key = lambda x: x[0][1])
 
-    distance0 = int(points[TOP][1]) - y * 1.0 + 1
-    distance1 = int(points[MID][1]) - y * 1.0 + 1
-    distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
+    x0 = points[BOT][0][0]
+    z0 = points[BOT][0][2]
+    x1 = points[BOT][0][0]
+    z1 = points[BOT][0][2]
+    y = int(points[BOT][0][1])
 
-    dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
-    dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
-    dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
-    dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+    distance0 = int(points[TOP][0][1]) - y * 1.0
+    distance1 = int(points[MID][0][1]) - y * 1.0
+    distance2 = int(points[TOP][0][1]) - int(points[MID][0][1]) * 1.0
 
-    while y <= int(points[TOP][1]):
-        if ( not flip and y >= int(points[MID][1])):
-            flip = True
+    dx0 = (points[TOP][0][0] - points[BOT][0][0]) / distance0 if distance0 != 0 else 0
+    dz0 = (points[TOP][0][2] - points[BOT][0][2]) / distance0 if distance0 != 0 else 0
+    dx1 = (points[MID][0][0] - points[BOT][0][0]) / distance1 if distance1 != 0 else 0
+    dz1 = (points[MID][0][2] - points[BOT][0][2]) / distance1 if distance1 != 0 else 0
 
-            dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
-            dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
-            x1 = points[MID][0]
-            z1 = points[MID][2]
+    r0 = points[BOT][1][0]
+    g0 = points[BOT][1][1]
+    b0 = points[BOT][1][2]
+    r1 = points[BOT][1][0]
+    g1 = points[BOT][1][1]
+    b1 = points[BOT][1][2]
 
-        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
-        draw_scanline(int(x0), z0, int(x1), z1, y, screen, zbuffer, color)
+    dcr0 = (points[TOP][1][0] - points[BOT][1][0]) / distance0 if distance0 != 0 else 0
+    dcg0 = (points[TOP][1][1] - points[BOT][1][1]) / distance0 if distance0 != 0 else 0
+    dcb0 = (points[TOP][1][2] - points[BOT][1][2]) / distance0 if distance0 != 0 else 0
+    dcr1 = (points[MID][1][0] - points[BOT][1][0]) / distance1 if distance1 != 0 else 0
+    dcg1 = (points[MID][1][1] - points[BOT][1][1]) / distance1 if distance1 != 0 else 0
+    dcb1 = (points[MID][1][2] - points[BOT][1][2]) / distance1 if distance1 != 0 else 0
+
+    if distance0 == 0:
+        r1 = points[TOP][1][0]
+        g1 = points[TOP][1][1]
+        b1 = points[TOP][1][2]
+    elif distance1 == 0:
+        r1 = points[MID][1][0]
+        g1 = points[MID][1][1]
+        b1 = points[MID][1][2]
+
+    while y <= int(points[TOP][0][1]):
+
+        colornormal0 = [r0, g0, b0]
+        colornormal1 = [r1, g1, b1]
+
+        draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, colornormal0, colornormal1, shading, extra, intensity)
         x0+= dx0
         z0+= dz0
         x1+= dx1
         z1+= dz1
+        r0+= dcr0
+        g0+= dcg0
+        b0+= dcb0
+        r1+= dcr1
+        g1+= dcg1
+        b1+= dcb1
         y+= 1
+
+        if ( not flip and y >= int(points[MID][0][1])):
+            flip = True
+
+            dx1 = (points[TOP][0][0] - points[MID][0][0]) / distance2 if distance2 != 0 else 0
+            dz1 = (points[TOP][0][2] - points[MID][0][2]) / distance2 if distance2 != 0 else 0
+            x1 = points[MID][0][0]
+            z1 = points[MID][0][2]
+
+            dcr1 = (points[TOP][1][0] - points[MID][1][0]) / distance2 if distance2 != 0 else 0
+            dcg1 = (points[TOP][1][1] - points[MID][1][1]) / distance2 if distance2 != 0 else 0
+            dcb1 = (points[TOP][1][2] - points[MID][1][2]) / distance2 if distance2 != 0 else 0
+            r1 = points[MID][1][0]
+            g1 = points[MID][1][1]
+            b1 = points[MID][1][2]
 
 
 

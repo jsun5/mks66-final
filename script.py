@@ -196,59 +196,98 @@ def run(filename):
 						
             if c == 'box':
 				intensity = [0,0,0]
-                if command['constants']:
-                    reflect = command['constants']
+                if command['constants'] != None:
+                    consts = symbols[command['constants']][1]
+                    areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
+                    dreflect = [consts['red'][1],consts['green'][1],consts['blue'][1]]
+                    sreflect = [consts['red'][2],consts['green'][2],consts['blue'][2]]
+                    if len(consts['blue']) > 3:
+                        intensity[0] = consts['blue'][3]
+                        intensity[1] = consts['blue'][4]
+                        intensity[2] = consts['blue'][5]
+                else:
+                    areflect = [default[0],default[3],default[6]]
+                    dreflect = [default[1],default[4],default[7]]
+                    sreflect = [default[2],default[5],default[8]]    
+                if command['cs'] != None:
+                    coords = command['cs']
                 add_box(tmp,
                         args[0], args[1], args[2],
                         args[3], args[4], args[5])
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, areflect, dreflect, sreflect, shading, intensity)
                 tmp = []
-                reflect = '.white'
             elif c == 'sphere':
 				intensity = [0,0,0]
-                if command['constants']:
-                    reflect = command['constants']
+                if command['constants'] != None:
+                    consts = symbols[command['constants']][1]
+                    areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
+                    dreflect = [consts['red'][1],consts['green'][1],consts['blue'][1]]
+                    sreflect = [consts['red'][2],consts['green'][2],consts['blue'][2]]
+                    if len(consts['blue']) > 3:
+                        intensity[0] = consts['blue'][3]
+                        intensity[1] = consts['blue'][4]
+                        intensity[2] = consts['blue'][5]
+                else:
+                    areflect = [default[0],default[3],default[6]]
+                    dreflect = [default[1],default[4],default[7]]
+                    sreflect = [default[2],default[5],default[8]]
+                if command['cs'] != None:
+                    coords = command['cs']
                 add_sphere(tmp,
                            args[0], args[1], args[2], args[3], step_3d)
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, areflect, dreflect, sreflect, shading, intensity)
                 tmp = []
-                reflect = '.white'
             elif c == 'torus':
 				intensity = [0,0,0]
-                if command['constants']:
-                    reflect = command['constants']
+                if command['constants'] != None:
+                    consts = symbols[command['constants']][1]
+                    areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
+                    dreflect = [consts['red'][1],consts['green'][1],consts['blue'][1]]
+                    sreflect = [consts['red'][2],consts['green'][2],consts['blue'][2]]
+                    if len(consts['blue']) > 3:
+                        intensity[0] = consts['blue'][3]
+                        intensity[1] = consts['blue'][4]
+                        intensity[2] = consts['blue'][5]
+                else:
+                    areflect = [default[0],default[3],default[6]]
+                    dreflect = [default[1],default[4],default[7]]
+                    sreflect = [default[2],default[5],default[8]]
+                if command['cs'] != None:
+                    coords = command['cs']
                 add_torus(tmp,
                           args[0], args[1], args[2], args[3], args[4], step_3d)
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, areflect, dreflect, sreflect, shading, intensity)
                 tmp = []
-                reflect = '.white'
             elif c == 'line':
+                if command['constants'] != None:
+                    consts = symbols[command['constants']][1]
+                    areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
+                    dreflect = [consts['red'][1],consts['green'][1],consts['blue'][1]]
+                    sreflect = [consts['red'][2],consts['green'][2],consts['blue'][2]]
+                if command['cs0'] != None:
+                    coords = command['cs0']
+                if command['cs1'] != None:
+                    coords1 = command['cs1']
                 add_edge(tmp,
                          args[0], args[1], args[2], args[3], args[4], args[5])
                 matrix_mult( stack[-1], tmp )
                 draw_lines(tmp, screen, zbuffer, color)
                 tmp = []
             elif c == 'move':
-                if command['knob'] is not None:
-                    knob_value = frames[i][command['knob']]
-                tmp = make_translate(args[0]*knob_value, args[1]*knob_value, args[2]*knob_value)
+                tmp = make_translate(args[0], args[1], args[2])
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
             elif c == 'scale':
-                if command['knob'] is not None:
-                    knob_value = frames[i][command['knob']]
-                tmp = make_scale(args[0]*knob_value, args[1]*knob_value, args[2]*knob_value)
+                tmp = make_scale(args[0], args[1], args[2])
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
             elif c == 'rotate':
-                if command['knob'] is not None:
-                    knob_value = frames[i][command['knob']]
-                theta = args[1] * (math.pi/180) *knob_value
+                theta = args[1] * (math.pi/180)
                 if args[0] == 'x':
                     tmp = make_rotX(theta)
                 elif args[0] == 'y':
@@ -262,13 +301,32 @@ def run(filename):
                 stack.append([x[:] for x in stack[-1]] )
             elif c == 'pop':
                 stack.pop()
+		    elif c == 'ambient':
+                ambient = args[:]
+            elif c == 'light':
+                col = symbols[command['light']][1]['color']
+                loca = symbols[command['light']][1]['location']
+                light = [loca,col]
+                lights.append(light)
             elif c == 'display':
                 display(screen)
             elif c == 'save':
-                save_extension(screen, args[0])
-        num = format(i, "03")
-        save_extension(screen, "anim/" + name + num + ".png")
-        
-        make_animation(name)
+                save_extension(screen, args[0]+'.png')
+        if is_anim:
+            if not os.path.exists('anim'):
+                os.mkdir('anim')
+            save_extension(screen, ("./anim/" + base + ("%03d" % int(frame)) + ".png"))
+
+        tmp = new_matrix()
+        ident( tmp )
+        stack = [ [x[:] for x in tmp] ]
+        screen = new_screen()
+        zbuffer = new_zbuffer()
+        tmp = []
+        lights = []
+        step_3d = 20
+
+    if is_anim:
+        make_animation(base)
         # end operation loop
                 
