@@ -24,29 +24,29 @@ knobs = []
   #Thank you Andrew Shao for helping me fix my script to implement new intensity feature
 def first_pass( commands ):
     
-	global num_frames
+    global num_frames
     global base
     global is_anim
     frames = False
     basename = False
-	
+    
     for command in commands:
         c = command['op']
         args = command['args']
        
         if c == 'frames':
-			frames = True
-			is_anim = True
+            frames = True
+            is_anim = True
             num_frames = args[0]
         
         elif c == 'basename':
-			is_anim = True
-			found_basename = True
+            is_anim = True
+            found_basename = True
             base = args[0]
             
         elif c == 'vary':
-			is_anim = True
-			if not frames: return
+            is_anim = True
+            if not frames: return
 
 """======== second_pass( commands ) ==========
   In order to set the knobs for animation, we need to keep
@@ -64,22 +64,22 @@ def first_pass( commands ):
   ====================Thank you Hui Min for giving me a hand at the second pass"""
 def second_pass( commands):
     global knobs
-	global num_frames
+    global num_frames
     
-	for i in range(int(num_frames)):
+    for i in range(int(num_frames)):
         knobs.append({})
 
     for command in commands:
         c = command['op']
         args = command['args']
-		
-		if c == 'vary':
+        
+        if c == 'vary':
             knob = command['knob']
-			curr = args[2]
+            curr = args[2]
             if len(args) > 4 and args[4] <= 0: return
             increment = (args[3] - args[2]) / (args[1] - args[0] + 1)
      
-			for i in range(int(args[0]), int(args[1])+1):
+            for i in range(int(args[0]), int(args[1])+1):
                 if len(args) > 4:
                     if isinstance(args[4],float):
                         if increment < 0:
@@ -120,8 +120,8 @@ def run(filename):
     """
     This function runs an mdl script
     """
-	
-	p = mdl.parseFile(filename)
+    
+    p = mdl.parseFile(filename)
 
     if p:
         (commands, symbols) = p
@@ -131,7 +131,7 @@ def run(filename):
 
     first_pass(commands)
     second_pass(commands)
-	
+    
     view = [0,
             0,
             1];
@@ -144,7 +144,7 @@ def run(filename):
              [255,
               255,
               255]]
-	lights = []
+    lights = []
     areflect = [0.1,
                 0.1,
                 0.1]
@@ -162,7 +162,7 @@ def run(filename):
     tmp = new_matrix()
     ident( tmp )
 
-	stack = [ [x[:] for x in tmp] ]
+    stack = [ [x[:] for x in tmp] ]
     screen = new_screen()
     zbuffer = new_zbuffer()
     tmp = []
@@ -179,23 +179,23 @@ def run(filename):
 
         for knob in knobs[frame]:
             symbols[knob][1] = knobs[frame][knob]
-			
+            
         for command in commands:
             #print command
             c = command['op']
             args = command['args']
             if (not args == None):
                 args = args[:]
-			if (c in ["move", "scale", "rotate"]) and (not args == None) and ("knob" in command) and (not command["knob"] == None):
+            if (c in ["move", "scale", "rotate"]) and (not args == None) and ("knob" in command) and (not command["knob"] == None):
                 knob = command["knob"]
                 for i in range(len(args)):
                     if not isinstance(args[i], basestring):
                         args[i] = args[i] * symbols[knob][1]
 
-						
-						
+                        
+                        
             if c == 'box':
-				intensity = [0,0,0]
+                intensity = [0,0,0]
                 if command['constants'] != None:
                     consts = symbols[command['constants']][1]
                     areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
@@ -218,7 +218,7 @@ def run(filename):
                 draw_polygons(tmp, screen, zbuffer, view, ambient, lights, areflect, dreflect, sreflect, shading, intensity)
                 tmp = []
             elif c == 'sphere':
-				intensity = [0,0,0]
+                intensity = [0,0,0]
                 if command['constants'] != None:
                     consts = symbols[command['constants']][1]
                     areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
@@ -240,7 +240,7 @@ def run(filename):
                 draw_polygons(tmp, screen, zbuffer, view, ambient, lights, areflect, dreflect, sreflect, shading, intensity)
                 tmp = []
             elif c == 'torus':
-				intensity = [0,0,0]
+                intensity = [0,0,0]
                 if command['constants'] != None:
                     consts = symbols[command['constants']][1]
                     areflect = [consts['red'][0],consts['green'][0],consts['blue'][0]]
@@ -301,7 +301,7 @@ def run(filename):
                 stack.append([x[:] for x in stack[-1]] )
             elif c == 'pop':
                 stack.pop()
-		    elif c == 'ambient':
+            elif c == 'ambient':
                 ambient = args[:]
             elif c == 'light':
                 col = symbols[command['light']][1]['color']
