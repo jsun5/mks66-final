@@ -21,7 +21,7 @@ knobs = []
   with the name being used.
   ==================== """
   
-  #Thank you to Andrew Shao for helping me fix my script to implement new intensity feature
+  #Thank you Andrew Shao for helping me fix my script to implement new intensity feature
 def first_pass( commands ):
     
 	global num_frames
@@ -62,7 +62,7 @@ def first_pass( commands ):
   dictionary corresponding to the given knob with the
   appropirate value.
   ====================Thank you Hui Min for giving me a hand at the second pass"""
-def second_pass( commands, num_frames ):
+def second_pass( commands):
     global knobs
 	global num_frames
     
@@ -120,7 +120,8 @@ def run(filename):
     """
     This function runs an mdl script
     """
-    p = mdl.parseFile(filename)
+	
+	p = mdl.parseFile(filename)
 
     if p:
         (commands, symbols) = p
@@ -128,34 +129,44 @@ def run(filename):
         print "Parsing failed."
         return
 
+    first_pass(commands)
+    second_pass(commands)
+	
     view = [0,
             0,
             1];
     ambient = [50,
                50,
                50]
-    light = [[0.5,
+    deflight = [[0.5,
               0.75,
               1],
              [255,
               255,
               255]]
-
+	lights = []
+    areflect = [0.1,
+                0.1,
+                0.1]
+    dreflect = [0.5,
+                0.5,
+                0.5]
+    sreflect = [0.5,
+                0.5,
+                0.5]
+    consts = [areflect[0],dreflect[0],sreflect[0],areflect[1],dreflect[1],
+                  sreflect[1],areflect[2],dreflect[2],sreflect[2]]
+    default = consts[:]
     color = [0, 0, 0]
-    symbols['.white'] = ['constants',
-                         {'red': [0.2, 0.5, 0.5],
-                          'green': [0.2, 0.5, 0.5],
-                          'blue': [0.2, 0.5, 0.5]}]
-    reflect = '.white'
-
-    (name, num_frames) = first_pass(commands)
-    frames = second_pass(commands, num_frames)
-
 
     tmp = new_matrix()
     ident( tmp )
 
-    step_3d = 100
+	stack = [ [x[:] for x in tmp] ]
+    screen = new_screen()
+    zbuffer = new_zbuffer()
+    tmp = []
+    step_3d = 20
     consts = ''
     coords = []
     coords1 = []
